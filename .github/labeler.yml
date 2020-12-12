@@ -1,0 +1,11 @@
+documentation:
+  - '(README|docs|documentation|document)'
+  
+enhancement:
+  - 'add'
+  
+help wanted:
+  - 'help'
+
+critical:
+    - '(critical|urgent)'
