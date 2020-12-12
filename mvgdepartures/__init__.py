@@ -1,1 +1,4 @@
-from .Departures import Departures
+"""
+Import Departures class
+"""
+from .departures import Departures

@@ -6,10 +6,10 @@ requests: To make requests to the MVG API
 datetime: To calculate the timedelta
 """
 import sys
+from datetime import datetime, timedelta
 import json
 import pandas
 import requests as req
-from datetime import datetime, timedelta
 
 
 class Departures:
@@ -27,7 +27,8 @@ class Departures:
         departures = self.get_departures_raw(parsed_stations[0][1])
         self.departures = self.parse_departures(departures)
 
-    def get_stations(self, user_input):
+    @staticmethod
+    def get_stations(user_input):
         """
         Get request to MVG API for list of stations
         witch matches the parameter
@@ -36,16 +37,18 @@ class Departures:
         :return: all available stations matching the input
         """
 
-        url = 'https://www.mvg.de/api/fahrinfo/location/queryWeb?q={}'.format(user_input)
+        url = 'https://www.mvg.de/api/fahrinfo/location/queryWeb?q={}'\
+            .format(user_input)
         request = req.get(url)
 
         if request.status_code == 200:
             return json.loads(request.text)['locations']
-        else:
-            print('Error while fetching data')
-            sys.exit(1)
 
-    def parse_stations(self, stations_json):
+        print('Error while fetching data')
+        sys.exit(1)
+
+    @staticmethod
+    def parse_stations(stations_json):
         """
         Parsing stations to get id and name
 
@@ -60,7 +63,8 @@ class Departures:
 
         return output
 
-    def get_departures_raw(self, station_id):
+    @staticmethod
+    def get_departures_raw(station_id):
         """
         Returns list of departures of station
 
@@ -68,17 +72,19 @@ class Departures:
         :return: list of departures
         """
 
-        url = 'https://www.mvg.de/api/fahrinfo/departure/{}?footway=0'.format(station_id)
+        url = 'https://www.mvg.de/api/fahrinfo/departure/{}?footway=0'\
+            .format(station_id)
 
         request = req.get(url)
 
         if request.status_code == 200:
             return json.loads(request.text)['departures']
-        else:
-            print('Error while fetching data')
-            sys.exit(1)
 
-    def parse_departures(self, departures_json):
+        print('Error while fetching data')
+        sys.exit(1)
+
+    @staticmethod
+    def parse_departures(departures_json):
         """
         Filters only needed information of departures
 
@@ -89,7 +95,8 @@ class Departures:
 
         for departure in departures_json:
             product = departure['product']
-            departure_time = self.calc_dep_time(departure['departureTime'])
+            departure_time = \
+                Departures.calc_dep_time(departure['departureTime'])
             destination = departure['destination']
             label = departure['label']
 
@@ -97,7 +104,8 @@ class Departures:
 
         return output
 
-    def calc_dep_time(self, departure_time):
+    @staticmethod
+    def calc_dep_time(departure_time):
         """
         Calculates the timedelta between now and the departure time
 
@@ -108,7 +116,8 @@ class Departures:
         :param departure_time: the departure time in ms
         :return: array. format: (hours, minutes)
         """
-        time_object = pandas.to_datetime(departure_time, unit='ms') + timedelta(hours=1)
+        time_object = pandas.to_datetime(departure_time, unit='ms') \
+            + timedelta(hours=1)
         time_object = time_object.strftime('%Y-%m-%d %H:%M')
         time_object = datetime.strptime(time_object, '%Y-%m-%d %H:%M')
         date_obj_now = datetime.now()
