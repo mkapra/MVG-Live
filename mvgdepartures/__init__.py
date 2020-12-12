@@ -1,3 +1,4 @@
+# noqa: F401
 """
 Import Departures class
 """

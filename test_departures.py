@@ -1,4 +1,3 @@
-import pytest
 from mvgdepartures import Departures
 
 
