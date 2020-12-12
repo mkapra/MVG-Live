@@ -1,11 +1,11 @@
 documentation:
-  - '(?i)(README|docs|documentation|document)'
+  - '/(README|docs|documentation|document)/i'
   
 enhancement:
-  - '(?i)add'
+  - '/add/i'
   
 help wanted:
-  - '(?i)help'
+  - '/help/i'
 
 critical:
-    - '(?i)(critical|urgent)'
+    - '/(critical|urgent)/i'
