@@ -12,18 +12,20 @@ import requests as req
 from datetime import datetime, timedelta
 
 
-class Departure:
+class Departures:
     """
     This class provides the departure times of a station
     of the MVG.
     """
+    station_name = ""
+    departures = None
 
     def __init__(self, station_name):
-        stations_json = self.get_stations(station_name)
+        self.station_name = station_name
+        stations_json = self.get_stations(self.station_name)
         parsed_stations = self.parse_stations(stations_json)
-        departures = self.get_departures(parsed_stations[0][1])
-        parsed_departures = self.parse_departures(departures)
-        print(self.toString(parsed_departures))
+        departures = self.get_departures_raw(parsed_stations[0][1])
+        self.departures = self.parse_departures(departures)
 
     def get_stations(self, user_input):
         """
@@ -58,7 +60,7 @@ class Departure:
 
         return output
 
-    def get_departures(self, station_id):
+    def get_departures_raw(self, station_id):
         """
         Returns list of departures of station
 
@@ -115,7 +117,7 @@ class Departure:
 
         return t_delta.seconds // 3600, int(t_delta.seconds % 3600 / 60.0)
 
-    def to_string(self, departures):
+    def __str__(self):
         """
         Returns the departure times of a station as a string.
         Format:
@@ -127,7 +129,7 @@ class Departure:
         """
 
         output = ""
-        for departure in departures:
+        for departure in self.departures:
             product = departure[0]
             hours, minutes = departure[1]
             destination = departure[2]
