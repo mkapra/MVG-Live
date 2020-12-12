@@ -6,26 +6,29 @@ requests: To make requests to the MVG API
 datetime: To calculate the timedelta
 """
 import sys
+from datetime import datetime, timedelta
 import json
 import pandas
 import requests as req
-from datetime import datetime, timedelta
 
 
-class Departure:
+class Departures:
     """
     This class provides the departure times of a station
     of the MVG.
     """
+    station_name = ""
+    departures = None
 
     def __init__(self, station_name):
-        stations_json = self.get_stations(station_name)
+        self.station_name = station_name
+        stations_json = self.get_stations(self.station_name)
         parsed_stations = self.parse_stations(stations_json)
-        departures = self.get_departures(parsed_stations[0][1])
-        parsed_departures = self.parse_departures(departures)
-        print(self.toString(parsed_departures))
+        departures = self.get_departures_raw(parsed_stations[0][1])
+        self.departures = self.parse_departures(departures)
 
-    def get_stations(self, user_input):
+    @staticmethod
+    def get_stations(user_input):
         """
         Get request to MVG API for list of stations
         witch matches the parameter
@@ -34,16 +37,18 @@ class Departure:
         :return: all available stations matching the input
         """
 
-        url = 'https://www.mvg.de/api/fahrinfo/location/queryWeb?q={}'.format(user_input)
+        url = 'https://www.mvg.de/api/fahrinfo/location/queryWeb?q={}'\
+            .format(user_input)
         request = req.get(url)
 
         if request.status_code == 200:
             return json.loads(request.text)['locations']
-        else:
-            print('Error while fetching data')
-            sys.exit(1)
 
-    def parse_stations(self, stations_json):
+        print('Error while fetching data')
+        sys.exit(1)
+
+    @staticmethod
+    def parse_stations(stations_json):
         """
         Parsing stations to get id and name
 
@@ -58,7 +63,8 @@ class Departure:
 
         return output
 
-    def get_departures(self, station_id):
+    @staticmethod
+    def get_departures_raw(station_id):
         """
         Returns list of departures of station
 
@@ -66,17 +72,19 @@ class Departure:
         :return: list of departures
         """
 
-        url = 'https://www.mvg.de/api/fahrinfo/departure/{}?footway=0'.format(station_id)
+        url = 'https://www.mvg.de/api/fahrinfo/departure/{}?footway=0'\
+            .format(station_id)
 
         request = req.get(url)
 
         if request.status_code == 200:
             return json.loads(request.text)['departures']
-        else:
-            print('Error while fetching data')
-            sys.exit(1)
 
-    def parse_departures(self, departures_json):
+        print('Error while fetching data')
+        sys.exit(1)
+
+    @staticmethod
+    def parse_departures(departures_json):
         """
         Filters only needed information of departures
 
@@ -87,7 +95,8 @@ class Departure:
 
         for departure in departures_json:
             product = departure['product']
-            departure_time = self.calc_dep_time(departure['departureTime'])
+            departure_time = \
+                Departures.calc_dep_time(departure['departureTime'])
             destination = departure['destination']
             label = departure['label']
 
@@ -95,7 +104,8 @@ class Departure:
 
         return output
 
-    def calc_dep_time(self, departure_time):
+    @staticmethod
+    def calc_dep_time(departure_time):
         """
         Calculates the timedelta between now and the departure time
 
@@ -106,7 +116,8 @@ class Departure:
         :param departure_time: the departure time in ms
         :return: array. format: (hours, minutes)
         """
-        time_object = pandas.to_datetime(departure_time, unit='ms') + timedelta(hours=1)
+        time_object = pandas.to_datetime(departure_time, unit='ms') \
+            + timedelta(hours=1)
         time_object = time_object.strftime('%Y-%m-%d %H:%M')
         time_object = datetime.strptime(time_object, '%Y-%m-%d %H:%M')
         date_obj_now = datetime.now()
@@ -115,7 +126,7 @@ class Departure:
 
         return t_delta.seconds // 3600, int(t_delta.seconds % 3600 / 60.0)
 
-    def toString(self, departures):
+    def __str__(self):
         """
         Returns the departure times of a station as a string.
         Format:
@@ -127,7 +138,7 @@ class Departure:
         """
 
         output = ""
-        for departure in departures:
+        for departure in self.departures:
             product = departure[0]
             hours, minutes = departure[1]
             destination = departure[2]
@@ -138,7 +149,8 @@ class Departure:
                 departure_time = '{: <9}'.format('now')
             else:
                 if hours:
-                    departure_time = 'In {: <2} h:{: <2} min'.format(hours, minutes)
+                    departure_time = \
+                            'In {: <2} h:{: <2} min'.format(hours, minutes)
                 else:
                     departure_time = 'In {: <2} min'.format(minutes)
 
@@ -147,6 +159,7 @@ class Departure:
             elif product == 'TRAM':
                 label = 'Tram {}'.format(label)
 
-            output += '{}: {: <8} - {}\n'.format(departure_time, label, destination)
+            output += '{}: {: <8} - {}\n'  \
+                .format(departure_time, label, destination)
 
         return output

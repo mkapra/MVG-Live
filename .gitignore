@@ -1,0 +1,5 @@
+venv
+dist/
+build/
+MVG_Live.egg-info/
+__pycache__
