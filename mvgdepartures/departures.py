@@ -115,7 +115,7 @@ class Departure:
 
         return t_delta.seconds // 3600, int(t_delta.seconds % 3600 / 60.0)
 
-    def toString(self, departures):
+    def to_string(self, departures):
         """
         Returns the departure times of a station as a string.
         Format:
@@ -138,7 +138,8 @@ class Departure:
                 departure_time = '{: <9}'.format('now')
             else:
                 if hours:
-                    departure_time = 'In {: <2} h:{: <2} min'.format(hours, minutes)
+                    departure_time = \
+                            'In {: <2} h:{: <2} min'.format(hours, minutes)
                 else:
                     departure_time = 'In {: <2} min'.format(minutes)
 
@@ -147,6 +148,7 @@ class Departure:
             elif product == 'TRAM':
                 label = 'Tram {}'.format(label)
 
-            output += '{}: {: <8} - {}\n'.format(departure_time, label, destination)
+            output += '{}: {: <8} - {}\n'  \
+                .format(departure_time, label, destination)
 
         return output
