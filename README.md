@@ -1,6 +1,6 @@
 # MVG live
 
-![Pylint](https://github.com/mkapra/MVG-Live/workflows/Pylint/badge.svg?branch=master)
+![Lint](https://github.com/mkapra/MVG-Live/workflows/Python%20Lint/badge.svg)
 
 Shows MVG live data.
 
